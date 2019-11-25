@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import spidev
+import time
 
 # 모터 드라이버 연결 PIN
 A1A = 5
@@ -39,3 +40,14 @@ try:
 		 #가져온 데이터를 %단위로 변화. 습도  높을수록 낮은 값을 반환하므로
 		#100에서 빼주어 습도가 높을수록 백분율이 높아지도록 계산
 		hum = 100 - int(Map(adcValue, HUM_MAX, 1023, 0 ,100))
+		if hum < HUM_THRESHOLD:
+			GPIO.output(A1A,GPIO.HIGH) # 워터펌프 가동
+			GPIO.output(A1B,GPIO.LOW)
+		else:
+			GPIO.output(A1A,GPIO.LOW)
+			GPIO.output(A1B,GPIO.LOW)
+		time.sleep(0.5)
+finally:
+	GPIO.cleanup()
+	spi.close()
+
