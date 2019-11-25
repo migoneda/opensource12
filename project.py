@@ -25,3 +25,17 @@ def read_spi_adc(adcChannel):
 	buff = spi.xfer2([1,(8+adcChannel)<<4, 9])
 	adcValue = ((buff[1]&3)<<8)+buff[2]
 	return adcValue
+# 센서 값을 백분율로 변환하기 위한 Map 함수
+def Map(value, min_adc, max_adc, min_hum, max_hum):
+	adc_range = max_adc - min_adc
+	hum_range = max_hum - min_hum
+	scale_factor = float(adc_range)/float(hum_range)
+	return min_hum + ( (value - min_adc)/scale_factor )
+
+try:
+	adcChannal = 0
+	while True:
+		adcValue = read_spi_adc(adcChannel)
+		 #가져온 데이터를 %단위로 변화. 습도  높을수록 낮은 값을 반환하므로
+		#100에서 빼주어 습도가 높을수록 백분율이 높아지도록 계산
+		hum = 100 - int(Map(adcValue, HUM_MAX, 1023, 0 ,100))
